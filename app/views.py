@@ -71,6 +71,10 @@ def getmovies():
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
 
+@app.route('/api/v1/posters/<filename>')
+def get_image(filename):
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
+
 ###
 # The functions below should be applicable to all Flask apps.
 ###
@@ -113,6 +117,3 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
-
-def getImage(filename):
-    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
