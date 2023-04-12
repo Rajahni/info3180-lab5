@@ -1,4 +1,12 @@
 <template>
+
+    <div
+        v-if="displayFlash"
+        v-bind:class="[isSuccess ? alertSuccessClass : alertErrorClass]"
+        class="alert">
+        {{ flashMessage }}
+    </div>
+    
     <form @submit.prevent="saveMovie" method="post" enctype="multipart/form-data" id="movieForm">
       
         <label for="title" class="form-label">Enter Movie Title:</label>
@@ -16,9 +24,16 @@
 </template>
 
 <script setup>
-
     import { ref, onMounted } from "vue";
     let csrf_token = ref("");
+
+    // flash elements
+    let flashMessage = ref("");
+    let displayFlash = ref(false);
+    let isSuccess = ref(false);
+    let alertSuccessClass = ref("alert-success");
+    let alertErrorClass = ref("alert-danger");
+
 
     onMounted(() => {
         getCsrfToken();
@@ -32,6 +47,12 @@
             console.log(data);
             csrf_token.value = data.csrf_token;
         })
+    }
+
+    function clearFormFields() {
+        title.value = "";
+        description.value = "";
+        poster.value = "";
     }
 
     function saveMovie() {
@@ -49,8 +70,20 @@
             return response.json();
         })
         .then(function (data) {
-            // display a success message
-            console.log(data);
+      console.log(data);
+      if ("errors" in data) {
+        flashMessage.value = [...data.errors];
+        isSuccess.value = false;
+        displayFlash.value = true;
+        } 
+      else {
+        displayFlash.value = true;
+        isSuccess.value = true;
+        flashMessage.value = "Movie added successfully!";
+        clearFormFields();
+        console.log(data);
+        }
+        
         })
         .catch(function (error) {
             // console.log("Something")
